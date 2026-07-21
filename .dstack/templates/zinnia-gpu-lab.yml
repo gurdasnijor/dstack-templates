@@ -1,0 +1,38 @@
+type: template
+name: zinnia-gpu-lab
+
+title: Zinnia GPU Lab
+description: Launch an ephemeral GPU development environment across the Zinnia compute pool.
+
+parameters:
+  - type: name
+  - type: ide
+  - type: resources
+  - type: python_or_docker
+  - type: repo
+  - type: working_dir
+
+configuration:
+  type: dev-environment
+
+  python: "3.12"
+  ide: vscode
+
+  fleets: [pooled-gpu]
+  backends: [vastai, runpod, lambda]
+  spot_policy: auto
+  max_price: 2.50
+  max_duration: 6h
+  idle_duration: 5m
+
+  retry:
+    on_events: [no-capacity, interruption]
+    duration: 20m
+
+  resources:
+    cpu: 8..
+    memory: 64GB..
+    disk: 200GB..
+    gpu:
+      memory: 24GB..
+      count: 1
