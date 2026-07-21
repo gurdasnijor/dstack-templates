@@ -11,8 +11,8 @@ directly from the UI through a guided experience.
 > [!NOTE]
 > Templates require `dstack` server version 0.20.12 or newer.
 
-To enable the launch wizard, point the server to a Git repository containing templates
-via the `DSTACK_SERVER_TEMPLATES_REPO` environment variable:
+To enable the launch wizard for every project, point the server to a Git repository
+containing templates via the `DSTACK_SERVER_TEMPLATES_REPO` environment variable:
 
 ```shell
 $ DSTACK_SERVER_TEMPLATES_REPO=https://github.com/dstackai/dstack-templates dstack server
@@ -21,11 +21,26 @@ $ DSTACK_SERVER_TEMPLATES_REPO=https://github.com/dstackai/dstack-templates dsta
 Once configured, the **Launch** button on the **Runs** page will show the available templates.
 Select a template, configure the parameters, and click **Apply** to create the run.
 
+On current dstack releases, an administrator can instead configure a templates repository
+for one project in **Project settings**. A project-specific repository takes precedence over
+the server-wide default.
+
 <img width="850" src="https://dstack.ai/static-assets/static-assets/images/dstack-templates-in-browser-ide-o.gif" />
 
 > [!NOTE]
-> The launch wizard is an experimental feature. Currently, templates are configured per server.
-> Per-project templates configuration is coming soon.
+> The launch wizard is an experimental feature.
+
+## Zinnia templates
+
+This fork also carries a curated self-service catalog for the Zinnia `main` project:
+
+- `Zinnia GPU Lab` for interactive development
+- `Zinnia Python Batch` for one-off GPU jobs
+
+Stable inference services intentionally remain in the infra repository and are
+applied through the dstack CLI. dstack 0.20.28's Launch UI does not accept all of
+the fields they need, including `volumes`, `shell`, and `backend_options`. Fleet,
+volume, and stable-service definitions therefore remain outside this UI catalog.
 
 ## Creating custom templates
 
@@ -46,7 +61,7 @@ Each template file has the following top-level fields:
 - `configuration` — a standard `dstack` run configuration ([`dev-environment`](https://dstack.ai/docs/concepts/dev-environments), [`service`](https://dstack.ai/docs/concepts/services), or [`task`](https://dstack.ai/docs/concepts/tasks))
 
 
-### Exmaples
+### Examples
 
 #### Desktop IDE
 
@@ -135,10 +150,6 @@ listing Git repos, etc.).
 | `repo`             | Configure a Git repo to clone into the run.                                                                      |
 | `working_dir`      | Configure a working directory.                                                                                   |
 | `env`              | Define a custom environment variable. Supports `title`, `name`, and `value` properties. The special value `$random-password` tells the UI to auto-generate a random password. |
-
-## TODO
-
-- Per-project templates configuration (currently templates are configured per server)
 
 ## What's next?
 
