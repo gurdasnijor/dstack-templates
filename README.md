@@ -35,6 +35,7 @@ the server-wide default.
 This fork also carries a curated self-service catalog for the Zinnia `main` project:
 
 - `Zinnia GPU Lab` for interactive development
+- `Qwen Image Lab` for Zed-based Qwen image editing and LoRA experimentation
 - `Zinnia Python Batch` for one-off GPU jobs
 
 Stable inference services intentionally remain in the infra repository and are
@@ -83,6 +84,32 @@ The UI's Repo field clones the remote repository state. To include unpushed
 commits or other local working-tree changes, use a checked-out `.dstack.yml`
 through the CLI and configure `repos` with a local path; dstack clones the Git
 repository and applies its local changes when submitting the run.
+
+### Qwen Image Lab workflow
+
+`Qwen Image Lab` is a focused Zed interactive environment for
+`Qwen/Qwen-Image-Edit-2511`. It uses Hugging Face's CUDA Diffusers development
+image, pinned by digest, and installs a Jupyter kernel, Transformers, and PEFT
+during initialization. The `HF_TOKEN` dstack project secret is made available
+to the Hub client without exposing it in this repository.
+
+The template requests one GPU with at least 80GB of VRAM, 128GB of system
+memory, and 200GB of disk. Its $5/hour ceiling still lets the launch wizard
+rank qualifying offers across Vast.ai, RunPod, and Lambda. The model repository
+contains roughly 58GB of assets, so the first model load can remain lengthy on
+an uncached marketplace instance.
+
+After launch, attach from the workstation and open the printed Zed link:
+
+```shell
+dstack attach <run-name>
+```
+
+Open a Python file in Zed, separate interactive cells with `# %%`, and select
+the registered `Qwen Image Lab` kernel. Run a cell with `Ctrl-Shift-Enter`.
+Zed's REPL displays images and plots inline using the remote Jupyter kernel.
+The run stops after two hours without any Zed, SSH, `apply`, or `attach`
+connection and has a six-hour hard maximum.
 
 ## Creating custom templates
 
