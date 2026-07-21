@@ -12,10 +12,9 @@ parameters:
 configuration:
   type: dev-environment
 
-  # The source for a preconfigured derivative lives under
-  # images/qwen-image-lab/. Until its first public GHCR digest is published,
-  # keep using the exact upstream image validated by the end-to-end lab run.
-  image: diffusers/diffusers-pytorch-cuda@sha256:d0051164c734080c19279a1f57f9b5601641ed84c4b925e1a360d2f25adc6c5b
+  # Built from images/qwen-image-lab/Dockerfile and pinned to the digest that
+  # passed the dstack import/kernel/starter smoke task.
+  image: ghcr.io/gurdasnijor/zinnia-image-lab@sha256:d25af4441c900033a0a8338067379792948496d10f1b48ff30f5d232447988af
   ide: zed
   working_dir: /dstack/run
 
@@ -26,23 +25,10 @@ configuration:
     - HF_XET_HIGH_PERFORMANCE=1
 
   init:
-    - uv pip install ipykernel ipywidgets transformers peft safetensors matplotlib
-    - |
-      set -eu
-      for tool in python pip jupyter; do
-        ln -sf "/opt/venv/bin/$tool" "/usr/local/bin/$tool"
-      done
-      if [ -x /root/.local/bin/uv ]; then
-        ln -sf /root/.local/bin/uv /usr/local/bin/uv
-      fi
     - |
       set -eu
       if [ -z "$(find /dstack/run -mindepth 1 -maxdepth 1 -print -quit)" ]; then
-        starter_url="https://raw.githubusercontent.com/gurdasnijor/dstack-templates/main/starters/qwen-image-lab"
-        mkdir -p /dstack/run/inputs /dstack/run/outputs
-        for file in README.md qwen_image_edit.py .gitignore; do
-          curl -fsSL "$starter_url/$file" -o "/dstack/run/$file"
-        done
+        cp -a /opt/zinnia/starters/qwen-image-lab/. /dstack/run/
       fi
     - |
       python - <<'PY'
@@ -53,7 +39,6 @@ configuration:
       if token:
           login(token=token, add_to_git_credential=False)
       PY
-    - python -m ipykernel install --user --name qwen-image-lab --display-name "Qwen Image Lab"
 
   fleets: [pooled-gpu]
   backends: [vastai, runpod, lambda]

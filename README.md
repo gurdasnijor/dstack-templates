@@ -88,27 +88,21 @@ repository and applies its local changes when submitting the run.
 ### Qwen Image Lab workflow
 
 `Qwen Image Lab` is a focused Zed interactive environment for
-`Qwen/Qwen-Image-Edit-2511`. It currently uses Hugging Face's CUDA Diffusers
-development image pinned by digest. The validated editor dependencies and
-starter are also captured by `images/qwen-image-lab/Dockerfile`; the matching
-GitHub Actions workflow publishes `ghcr.io/gurdasnijor/zinnia-image-lab` so the
-template can migrate to an immutable derivative without installing tools on a
-billable GPU. Model weights, tokens, inputs, and outputs are deliberately not
-baked into that image.
-
-GitHub Container Registry creates the package as private on its first build.
-Make it public once, then update this template to the immutable digest recorded
-in the workflow summary. RunPod and Vast cannot use dstack `registry_auth`, so
-do not switch this template to the derivative while the package is private.
-The `HF_TOKEN` dstack project secret is made available to the Hub client
-without exposing it in this repository.
+`Qwen/Qwen-Image-Edit-2511`. The image is built from the pinned Hugging Face
+CUDA Diffusers base by `images/qwen-image-lab/Dockerfile` and includes the
+validated editor dependencies, Jupyter kernel, and starter. The template pins
+the immutable GHCR digest that passed a dstack smoke task, so it does not
+install tools or fetch starter code on a billable GPU. Model weights, tokens,
+inputs, and outputs are deliberately not baked into that image. The `HF_TOKEN`
+dstack project secret is made available to the Hub client without exposing it
+in this repository.
 
 When no repository is selected in the launch wizard, the template seeds a
 small project with a runnable Zed `# %%` workflow, `inputs/` and `outputs/`
 directories, and an optional Diffusers LoRA hook. When a repository is
 selected, its files take precedence and the starter does not overwrite it.
-The template also exposes the image's `/opt/venv` Python tools to remote Zed
-terminals and stores the Hugging Face login in the standard local Hub cache.
+The image exposes its `/opt/venv` Python tools to remote Zed terminals, and the
+template stores the Hugging Face login in the standard local Hub cache.
 
 The template requests one GPU with at least 80GB of VRAM, 128GB of system
 memory, and 200GB of disk. Its $5/hour ceiling still lets the launch wizard
