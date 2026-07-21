@@ -125,9 +125,25 @@ connection and has a six-hour hard maximum.
 dstack 0.20.28's Launch UI does not preserve the `volumes` field when it turns
 a template into a run. This UI-launched lab is therefore intentionally
 ephemeral and remains eligible for the pooled providers. The durable variant
-is `workloads/zinnia/inference/qwen-image-lab.dev.dstack.yml` in the infra
+is `hosts/ms01/zinnia/inference/qwen-image-lab.dev.dstack.yml` in the infra
 repository; it is applied with the CLI and mounts the regional RunPod cache for
 Hugging Face models, LoRAs, inputs, and outputs.
+
+The build workflow publishes immutable digests, but publishing alone does not
+advance either consumer. After validating an exact digest with the dstack smoke
+task, preserve it from registry cleanup with a durable promotion tag:
+
+```shell
+gh workflow run qwen-image-lab-image.yml \
+  -f promote_digest=sha256:<validated-digest>
+```
+
+The workflow verifies that the manifest exists and adds a
+`promoted-YYYYMMDD-<digest-prefix>` tag without rebuilding it. Then update the
+digest in both `.dstack/templates/qwen-image-lab.yml` here and
+`hosts/ms01/zinnia/inference/qwen-image-lab.dev.dstack.yml` in the infra
+repository. This explicit two-repository promotion is intentional: a main
+branch build does not replace a GPU-validated runtime automatically.
 
 ## Creating custom templates
 
