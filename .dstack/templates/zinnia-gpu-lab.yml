@@ -30,7 +30,9 @@ configuration:
     duration: 20m
 
   resources:
-    cpu: 8..
+    # Preserve the open range through dstack 0.20.28's Launch UI. A bare
+    # `8..` is incorrectly parsed as exactly 8 CPUs and excludes larger hosts.
+    cpu: x86:8..
     memory: 64GB..
     disk: 200GB..
     gpu:
