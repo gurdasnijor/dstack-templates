@@ -28,6 +28,32 @@ configuration:
 
   init:
     - uv pip install ipykernel ipywidgets transformers peft safetensors matplotlib
+    - |
+      set -eu
+      for tool in python pip jupyter; do
+        ln -sf "/opt/venv/bin/$tool" "/usr/local/bin/$tool"
+      done
+      if [ -x /root/.local/bin/uv ]; then
+        ln -sf /root/.local/bin/uv /usr/local/bin/uv
+      fi
+    - |
+      set -eu
+      if [ -z "$(find /dstack/run -mindepth 1 -maxdepth 1 -print -quit)" ]; then
+        starter_url="https://raw.githubusercontent.com/gurdasnijor/dstack-templates/main/starters/qwen-image-lab"
+        mkdir -p /dstack/run/inputs /dstack/run/outputs
+        for file in README.md qwen_image_edit.py .gitignore; do
+          curl -fsSL "$starter_url/$file" -o "/dstack/run/$file"
+        done
+      fi
+    - |
+      python - <<'PY'
+      import os
+      from huggingface_hub import login
+
+      token = os.environ.get("HF_TOKEN")
+      if token:
+          login(token=token, add_to_git_credential=False)
+      PY
     - python -m ipykernel install --user --name qwen-image-lab --display-name "Qwen Image Lab"
 
   fleets: [pooled-gpu]

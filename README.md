@@ -93,6 +93,13 @@ image, pinned by digest, and installs a Jupyter kernel, Transformers, and PEFT
 during initialization. The `HF_TOKEN` dstack project secret is made available
 to the Hub client without exposing it in this repository.
 
+When no repository is selected in the launch wizard, the template seeds a
+small project with a runnable Zed `# %%` workflow, `inputs/` and `outputs/`
+directories, and an optional Diffusers LoRA hook. When a repository is
+selected, its files take precedence and the starter does not overwrite it.
+The template also exposes the image's `/opt/venv` Python tools to remote Zed
+terminals and stores the Hugging Face login in the standard local Hub cache.
+
 The template requests one GPU with at least 80GB of VRAM, 128GB of system
 memory, and 200GB of disk. Its $5/hour ceiling still lets the launch wizard
 rank qualifying offers across Vast.ai, RunPod, and Lambda. The model repository
