@@ -88,10 +88,21 @@ repository and applies its local changes when submitting the run.
 ### Qwen Image Lab workflow
 
 `Qwen Image Lab` is a focused Zed interactive environment for
-`Qwen/Qwen-Image-Edit-2511`. It uses Hugging Face's CUDA Diffusers development
-image, pinned by digest, and installs a Jupyter kernel, Transformers, and PEFT
-during initialization. The `HF_TOKEN` dstack project secret is made available
-to the Hub client without exposing it in this repository.
+`Qwen/Qwen-Image-Edit-2511`. The image is built from the pinned Hugging Face
+CUDA Diffusers base by `images/qwen-image-lab/Dockerfile` and includes the
+validated editor dependencies, Jupyter kernel, and starter. The template pins
+the immutable GHCR digest that passed a dstack smoke task, so it does not
+install tools or fetch starter code on a billable GPU. Model weights, tokens,
+inputs, and outputs are deliberately not baked into that image. The `HF_TOKEN`
+dstack project secret is made available to the Hub client without exposing it
+in this repository.
+
+When no repository is selected in the launch wizard, the template seeds a
+small project with a runnable Zed `# %%` workflow, `inputs/` and `outputs/`
+directories, and an optional Diffusers LoRA hook. When a repository is
+selected, its files take precedence and the starter does not overwrite it.
+The image exposes its `/opt/venv` Python tools to remote Zed terminals, and the
+template stores the Hugging Face login in the standard local Hub cache.
 
 The template requests one GPU with at least 80GB of VRAM, 128GB of system
 memory, and 200GB of disk. Its $5/hour ceiling still lets the launch wizard
@@ -110,6 +121,13 @@ the registered `Qwen Image Lab` kernel. Run a cell with `Ctrl-Shift-Enter`.
 Zed's REPL displays images and plots inline using the remote Jupyter kernel.
 The run stops after two hours without any Zed, SSH, `apply`, or `attach`
 connection and has a six-hour hard maximum.
+
+dstack 0.20.28's Launch UI does not preserve the `volumes` field when it turns
+a template into a run. This UI-launched lab is therefore intentionally
+ephemeral and remains eligible for the pooled providers. The durable variant
+is `workloads/zinnia/inference/qwen-image-lab.dev.dstack.yml` in the infra
+repository; it is applied with the CLI and mounts the regional RunPod cache for
+Hugging Face models, LoRAs, inputs, and outputs.
 
 ## Creating custom templates
 

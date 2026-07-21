@@ -1,0 +1,12 @@
+accelerate==1.14.0
+huggingface-hub==1.24.0
+ipykernel==7.3.0
+ipython==8.39.0
+ipywidgets==8.1.8
+jupyter-client==8.9.1
+jupyter-core==5.9.1
+matplotlib==3.10.9
+peft==0.19.1
+pillow==12.2.0
+safetensors==0.8.0
+transformers==5.14.1

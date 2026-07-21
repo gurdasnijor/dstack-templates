@@ -6,17 +6,15 @@ description: Iterate on Qwen image editing, reference images, and LoRAs with Zed
 
 parameters:
   - type: name
-  - type: resources
   - type: repo
   - type: working_dir
 
 configuration:
   type: dev-environment
 
-  # Hugging Face's CUDA development image tracks Diffusers main, as required
-  # by Qwen-Image-Edit-2511. Pin the multi-platform image index so updates are
-  # deliberate and reproducible.
-  image: diffusers/diffusers-pytorch-cuda@sha256:d0051164c734080c19279a1f57f9b5601641ed84c4b925e1a360d2f25adc6c5b
+  # Built from images/qwen-image-lab/Dockerfile and pinned to the digest that
+  # passed the dstack import/kernel/starter smoke task.
+  image: ghcr.io/gurdasnijor/zinnia-image-lab@sha256:d25af4441c900033a0a8338067379792948496d10f1b48ff30f5d232447988af
   ide: zed
   working_dir: /dstack/run
 
@@ -27,8 +25,20 @@ configuration:
     - HF_XET_HIGH_PERFORMANCE=1
 
   init:
-    - uv pip install ipykernel ipywidgets transformers peft safetensors matplotlib
-    - python -m ipykernel install --user --name qwen-image-lab --display-name "Qwen Image Lab"
+    - |
+      set -eu
+      if [ -z "$(find /dstack/run -mindepth 1 -maxdepth 1 -print -quit)" ]; then
+        cp -a /opt/zinnia/starters/qwen-image-lab/. /dstack/run/
+      fi
+    - |
+      python - <<'PY'
+      import os
+      from huggingface_hub import login
+
+      token = os.environ.get("HF_TOKEN")
+      if token:
+          login(token=token, add_to_git_credential=False)
+      PY
 
   fleets: [pooled-gpu]
   backends: [vastai, runpod, lambda]
