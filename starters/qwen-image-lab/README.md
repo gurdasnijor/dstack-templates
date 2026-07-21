@@ -22,6 +22,9 @@ LORA_WEIGHT_NAME = None  # Set this when the repository has multiple weights.
 LORA_SCALE = 1.0
 ```
 
+The equivalent shell variables are `QWEN_LORA_REPO`,
+`QWEN_LORA_WEIGHT_NAME`, and `QWEN_LORA_SCALE`.
+
 Leave `LORA_REPO` empty to use the base model. The starter calls Diffusers'
 native Qwen Image LoRA loader and lets you control its adapter weight.
 
