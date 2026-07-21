@@ -1,0 +1,56 @@
+type: template
+name: qwen-image-lab
+
+title: Qwen Image Lab
+description: Iterate on Qwen image editing, reference images, and LoRAs with Zed REPL cells.
+
+parameters:
+  - type: name
+  - type: resources
+  - type: repo
+  - type: working_dir
+
+configuration:
+  type: dev-environment
+
+  # Hugging Face's CUDA development image tracks Diffusers main, as required
+  # by Qwen-Image-Edit-2511. Pin the multi-platform image index so updates are
+  # deliberate and reproducible.
+  image: diffusers/diffusers-pytorch-cuda@sha256:d0051164c734080c19279a1f57f9b5601641ed84c4b925e1a360d2f25adc6c5b
+  ide: zed
+  working_dir: /dstack/run
+
+  env:
+    - HF_TOKEN=${{ secrets.HF_TOKEN }}
+    - HF_HOME=/root/.cache/huggingface
+    - HF_ENABLE_PARALLEL_LOADING=true
+    - HF_XET_HIGH_PERFORMANCE=1
+
+  init:
+    - uv pip install ipykernel ipywidgets transformers peft safetensors matplotlib
+    - python -m ipykernel install --user --name qwen-image-lab --display-name "Qwen Image Lab"
+
+  fleets: [pooled-gpu]
+  backends: [vastai, runpod, lambda]
+  spot_policy: auto
+  max_price: 5.00
+  max_duration: 6h
+
+  # Stop only after Zed, SSH, apply, and attach have all been disconnected for
+  # two hours. This is distinct from fleet-level instance idle teardown.
+  inactivity_duration: 2h
+
+  retry:
+    on_events: [no-capacity, interruption]
+    duration: 20m
+
+  resources:
+    # Qwen-Image-Edit-2511 contains 20B BF16 parameters and roughly 58GB of
+    # repository assets. An 80GB GPU avoids offload during notebook iteration.
+    cpu: x86:16..
+    memory: 128GB..
+    disk: 200GB..
+    shm_size: 16GB
+    gpu:
+      memory: 80GB..
+      count: 1
