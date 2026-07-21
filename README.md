@@ -42,6 +42,48 @@ applied through the dstack CLI. dstack 0.20.28's Launch UI does not accept all o
 the fields they need, including `volumes`, `shell`, and `backend_options`. Fleet,
 volume, and stable-service definitions therefore remain outside this UI catalog.
 
+### GPU Lab workflow
+
+`Zinnia GPU Lab` defaults to Zed, dstack's managed Python environment,
+`/dstack/run`, and one GPU with at least 24GB of VRAM. The final resource picker
+may select a larger GPU while preserving the template's CPU, memory, disk,
+shared-memory, provider, and price constraints.
+
+In the launch wizard:
+
+1. Choose a run name and desktop IDE. Zed is the default.
+2. Choose an offer within the `$2.50/hour` template limit.
+3. Choose a Python version (such as `3.12`) or provide a custom Docker image.
+4. Enable **Repo** and provide a public Git URL when the workspace should start
+   with source code. Leave **Path** empty to clone it directly into
+   `/dstack/run`, or set an absolute destination.
+5. Review the generated YAML and launch the run.
+
+Keep the `dstack apply` or `dstack attach` command running while using a desktop
+IDE. To reconnect to a run launched from the UI:
+
+```shell
+dstack attach <run-name>
+```
+
+While attached, the printed IDE link and `ssh <run-name>` work through the local
+dstack-managed SSH configuration. For Zed, the equivalent macOS command is:
+
+```shell
+open 'zed://ssh/<run-name>/dstack/run'
+```
+
+The template stops after one hour without an IDE, SSH, `apply`, or `attach`
+connection, and has a six-hour hard maximum. `inactivity_duration` stops the
+run; the `pooled-gpu` fleet's separate five-minute `idle_duration` controls how
+long reusable VM capacity may remain after a run has stopped. The fleet setting
+does not apply to container-based Vast.ai and RunPod instances.
+
+The UI's Repo field clones the remote repository state. To include unpushed
+commits or other local working-tree changes, use a checked-out `.dstack.yml`
+through the CLI and configure `repos` with a local path; dstack clones the Git
+repository and applies its local changes when submitting the run.
+
 ## Creating custom templates
 
 To define your own templates, fork this repository or create a new one following the same layout.
@@ -144,7 +186,7 @@ listing Git repos, etc.).
 | Type               | Description                                                                                                     |
 |--------------------|-----------------------------------------------------------------------------------------------------------------|
 | `name`             | Configure an optional run name.                                                                                 |
-| `ide`              | Pick a desktop IDE (VS Code, Cursor, Windsurf).                                                                 |
+| `ide`              | Pick a desktop IDE (VS Code, Cursor, Windsurf, or Zed).                                                         |
 | `resources`        | Configure GPU/CPU resources based on available offers in the project.                                            |
 | `python_or_docker` | Select a Python version (to use the `dstack` base image) or specify a Docker image.                              |
 | `repo`             | Configure a Git repo to clone into the run.                                                                      |

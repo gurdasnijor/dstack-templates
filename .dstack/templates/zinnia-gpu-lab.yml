@@ -2,7 +2,7 @@ type: template
 name: zinnia-gpu-lab
 
 title: Zinnia GPU Lab
-description: Launch an ephemeral GPU development environment across the Zinnia compute pool.
+description: Launch a Zed-ready GPU workspace with optional repository checkout across the Zinnia compute pool.
 
 parameters:
   - type: name
@@ -15,15 +15,24 @@ parameters:
 configuration:
   type: dev-environment
 
-  python: "3.12"
-  ide: vscode
+  # The launch wizard can select a Python version or a custom image. If neither
+  # is specified, dstack's base image supplies its managed default Python.
+  ide: zed
+  working_dir: /dstack/run
+
+  # The default dstack image already includes uv, Python, CUDA drivers, MPI,
+  # and NCCL tests. Add nvcc so the environment can also build CUDA extensions.
+  nvcc: true
 
   fleets: [pooled-gpu]
   backends: [vastai, runpod, lambda]
   spot_policy: auto
   max_price: 2.50
   max_duration: 6h
-  idle_duration: 5m
+
+  # Stop the run after it has had no IDE, SSH, apply, or attach connection for
+  # one hour. Fleet-level idle_duration separately destroys reusable VM nodes.
+  inactivity_duration: 1h
 
   retry:
     on_events: [no-capacity, interruption]
@@ -35,6 +44,8 @@ configuration:
     cpu: x86:8..
     memory: 64GB..
     disk: 200GB..
+    # Avoid /dev/shm exhaustion in PyTorch dataloaders and multi-process tools.
+    shm_size: 16GB
     gpu:
       memory: 24GB..
       count: 1

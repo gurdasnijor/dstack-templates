@@ -2,7 +2,7 @@ type: template
 name: desktop-ide
 
 title: Desktop IDE
-description: Access the instance from your desktop VS Code, Cursor, or Windsurf.
+description: Access the instance from your desktop VS Code, Cursor, Windsurf, or Zed.
 
 parameters:
   - type: name
